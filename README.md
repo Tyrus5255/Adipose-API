@@ -11,7 +11,7 @@ Figura library that adds Weight Gain functionality with animation support.
     - [Require](#require)
   - [Weight Management](#weight-management)
     - [Set Weight](#setweight)
-    - [Set On Weight Change](#setonweightchange)
+    - [Set On Weight Change](#setonstagechange)
     - [Set Current Weight Stage](#setcurrentweightstage)
     - [Adjust Weight By Amount](#adjustweightbyamount)
     - [Adjust Weight By Stage](#adjustweightbystage)
@@ -96,7 +96,7 @@ forceUpdate | `Boolean` | If `true`, forces the script ignore update conditions
 adipose.setWeight(adipose.minWeight)
 ```
 
-#### `setOnWeightChange()`
+#### `setOnStageChange()`
 
 Lambda function which allows to write custom behavior upon weight stage changes.
 
@@ -112,7 +112,7 @@ stuffed | `Number` | Stuffed progress
 **Example:**
 
 ```lua
-adipose.setOnWeightChange(function (weight, index, granularity stuffed)
+adipose.setOnStageChange(function (weight, index, granularity stuffed)
   -- Update UI, set Pehkui scaling, play sounds...
   ...
 end)
