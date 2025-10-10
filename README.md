@@ -74,16 +74,6 @@ Import the Adipose API for use in a script.
 
 **Example:**
 
-## 📃 Functions
-
-### Adipose API
-
-#### Require
-
-Import the Adipose API for use in a script.
-
-**Example:**
-
 ```lua
 local adipose = require('Adipose')
 ```
