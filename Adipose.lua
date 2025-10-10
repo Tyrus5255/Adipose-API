@@ -188,6 +188,7 @@ function adipose.setWeight(amount, forceUpdate)
 end
 pings.AdiposeSetWeight = adipose.setWeight
 
+---@param stage number
 function adipose.setCurrentWeightStage(stage)
     stage = math.clamp(math.floor(stage), 1, #adipose.weightStages+1)
     pings.AdiposeSetWeight(calculateWeightFromIndex(stage))
@@ -224,34 +225,30 @@ end
 
 
 -- WEIGHT STAGE METHODS
----@param parts table<Models|ModelPart>
+---@param parts ModelPart|[ModelPart]
 ---@return self
 function adipose.weightStage:setParts(parts)
-    if type(parts) ~= 'table' then
-        if type(parts) ~= 'ModelParts' or type(partsList) ~= 'models' then
-            error("partsList must be a table or a ModelPart/Models object")
-        end
-    end
+    assert(type(parts) == 'ModelPart' or type(parts) == 'table', "Invalid parts")
 
     -- Validate contents of the table
-    for i, p in ipairs(parts) do
-        if type(p) == 'ModelParts' or type(p) == 'models' then
-            error("The body part at position "..i.." is not a models or a ModelPart")
-        end
-    end 
+    if type(parts) == 'table' then
+        for i, p in ipairs(parts) do
+            assert(type(p) == 'ModelPart', "Invalid part "..tostring(i))
+        end 
+    end
 
     self.partsList = parts
     return self
 end
 
----@param animation animations
+---@param animation Animation
 ---@return self
 function adipose.weightStage:setGranularAnimation(animation)
     self.granularAnim = animation
     return self
 end
 
----@param animation animations
+---@param animation Animation
 ---@return self
 function adipose.weightStage:setStuffedAnimation(animation)
     self.stuffedAnim = animation

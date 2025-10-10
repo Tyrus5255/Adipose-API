@@ -1,5 +1,6 @@
 # 🍔 Adipose API 
 
+
 Figura library that adds Weight Gain functionality with animation support.
 
 **Table of Contents**
@@ -22,6 +23,7 @@ Figura library that adds Weight Gain functionality with animation support.
     - [Set Scaling List](#setscaling)
 
 ## ⚙️ Features
+
 
 - **Staged Based Weight Gain**: designate Weight Stages with different modelparts or even whole models.
 - **Granular Weight Gain**: use an animation to smooth out the transition between stages.
@@ -59,7 +61,18 @@ Figura library that adds Weight Gain functionality with animation support.
 
 4. Save your script.
 
+
 5. Done!
+
+## 📃 Functions
+
+### Adipose API
+
+#### Require
+
+Import the Adipose API for use in a script.
+
+**Example:**
 
 ## 📃 Functions
 
