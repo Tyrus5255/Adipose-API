@@ -16,6 +16,7 @@ Figura library that adds Weight Gain functionality with animation support.
     - [Set Current Weight Stage](#setcurrentweightstage)
     - [Adjust Weight By Amount](#adjustweightbyamount)
     - [Adjust Weight By Stage](#adjustweightbystage)
+    - [New Stage](#weightstagenewstage)
   - [Weight Stage](#weight-stage)
     - [Set Parts](#setparts)
     - [Set Granular Animation](#setgranularanimation)
@@ -169,7 +170,7 @@ stage | `Number` | Weight stage
 adipose.adjustWeightByStage(1)
 ```
 
-#### `adipose.weightStage:newStage()`
+#### `weightStage:newStage()`
 
 Creates a new stage.
 

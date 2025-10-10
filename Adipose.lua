@@ -113,6 +113,10 @@ local function setStuffed(index, stuffed)
 	end
 end
 
+function adipose.setStuffedOverride(stuffed)
+    stuffedOverride = stuffed
+end
+
 -- EVENTS
 function events.tick()
     if player:getHealth() <= 0 then 
