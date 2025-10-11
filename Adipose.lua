@@ -39,10 +39,10 @@ end
 ---@param index integer Index for weight stage table
 ---@return number weight Weight between minimum and maximum
 local function calculateWeightFromIndex(index)
-    if index == #adipose.weightStages+1 then return adipose.maxWeight end
+    if index == #adipose.weightStages + 1 then return adipose.maxWeight end
 
     local normalized = (index - 1) / (#adipose.weightStages)
-    local weight = adipose.minWeight + normalized * (adipose.maxWeight - adipose.minWeight) 
+    local weight = adipose.minWeight + normalized * (adipose.maxWeight - adipose.minWeight)
 
     return weight
 end
@@ -52,17 +52,17 @@ end
 ---@return integer index Index for weight stage table
 ---@return number granularity Fractional value of weight between stages
 local function calculateProgressFromWeight(weight)
-	local normalized = (weight - adipose.minWeight) / (adipose.maxWeight - adipose.minWeight)
+    local normalized = (weight - adipose.minWeight) / (adipose.maxWeight - adipose.minWeight)
     local exactWeightStage = normalized * #adipose.weightStages + 1
 
-	if exactWeightStage == #adipose.weightStages + 1 then
+    if exactWeightStage == #adipose.weightStages + 1 then
         return #adipose.weightStages, 1
-    end	
+    end
 
     local index = math.floor(exactWeightStage)
     local granularity = exactWeightStage - index
 
-	return index, granularity
+    return index, granularity
 end
 
 --- Update timer value
@@ -98,21 +98,21 @@ end
 ---@param index integer Index for weight stage table
 ---@param granularity number Fractional value of animation length
 local function setGranularity(index, granularity)
-    for i, stage in ipairs(adipose.weightStages) do 
-	    local animation = stage.granularAnim
+    for i, stage in ipairs(adipose.weightStages) do
+        local animation = stage.granularAnim
 
-		if animation then
-			if index == i then
-				animation:play()
-				animation:setSpeed(0)
+        if animation then
+            if index == i then
+                animation:play()
+                animation:setSpeed(0)
 
-				local offset = animation:getLength() * granularity
-				animation:setOffset(offset)
-			else
-				animation:stop()
-			end
-		end
-	end
+                local offset = animation:getLength() * granularity
+                animation:setOffset(offset)
+            else
+                animation:stop()
+            end
+        end
+    end
 end
 
 -- Stuffed override value
@@ -198,7 +198,7 @@ end
 if host:isHost() then
     local initTimer = 25
 
-    events.TICK:register(function ()
+    events.TICK:register(function()
         if initTimer > 0 then
             initTimer = initTimer - 1
             return
@@ -210,17 +210,17 @@ if host:isHost() then
 end
 
 -- WEIGHT MANAGEMENT
-function adipose.setWeight(amount, forceUpdate)    
-    if #adipose.weightStages == 0 then return end	
 
 --- Set weight
 ---@param amount number Weight value
 ---@param forceUpdate boolean? Ignore stage change condition (optional, default false)
+function adipose.setWeight(amount, forceUpdate)
+    if #adipose.weightStages == 0 then return end
 
     amount = math.clamp(amount, adipose.minWeight, adipose.maxWeight)
-		
+
     local index, granularity = calculateProgressFromWeight(amount)
-    local stuffed = player:isLoaded() and player:getSaturation()/20 or 0
+    local stuffed = player:isLoaded() and player:getSaturation() / 20 or 0
 
     adipose.currentWeight = amount
     adipose.currentWeightStage = index
@@ -232,11 +232,11 @@ function adipose.setWeight(amount, forceUpdate)
         adipose.onStageChange(amount, index, granularity, stuffed)
         setModelPartsVisibility(index)
     end
-	
-	setGranularity(index, granularity)
-	setStuffed(index, stuffed)
 
-    config:save("adipose.currentWeight", math.floor(adipose.currentWeight*10)/10)
+    setGranularity(index, granularity)
+    setStuffed(index, stuffed)
+
+    config:save("adipose.currentWeight", math.floor(adipose.currentWeight * 10) / 10)
     config:save("adipose.currentWeightStage", adipose.currentWeightStage)
 end
 
@@ -245,21 +245,23 @@ pings.AdiposeSetWeight = adipose.setWeight
 --- Set current weight stage
 ---@param stage integer Index for weight stage table
 function adipose.setCurrentWeightStage(stage)
-    stage = math.clamp(math.floor(stage), 1, #adipose.weightStages+1)
+    stage = math.clamp(math.floor(stage), 1, #adipose.weightStages + 1)
     pings.AdiposeSetWeight(calculateWeightFromIndex(stage))
 end
 
 --- Adjust weight by value
 ---@param amount number Weight value to gain (may be negative to lose weight)
 function adipose.adjustWeightByAmount(amount)
-    amount = math.clamp((adipose.currentWeight + math.floor(amount)), adipose.minWeight, adipose.maxWeight)
+    amount = math.clamp((adipose.currentWeight + math.floor(amount)),
+        adipose.minWeight, adipose.maxWeight)
     pings.AdiposeSetWeight(amount)
 end
 
 --- Adjust weight by index
 ---@param amount integer Weight stage to gain (may be negative to lose weight)
 function adipose.adjustWeightByStage(amount)
-    amount = math.clamp((adipose.currentWeightStage + math.floor(amount)), 1, #adipose.weightStages+1)
+    amount = math.clamp((adipose.currentWeightStage + math.floor(amount)),
+        1, #adipose.weightStages + 1)
     pings.AdiposeSetWeight(calculateWeightFromIndex(amount))
 end
 
@@ -278,8 +280,8 @@ function adipose.weightStage:newStage()
     local obj = setmetatable({
         partsList = {},
         granularAnim = nil,
-		stuffedAnim = nil,
-        scalingList = {}
+        stuffedAnim = nil,
+        scalingList = {},
     }, self)
 
     table.insert(adipose.weightStages, obj)
@@ -290,13 +292,14 @@ end
 ---@param parts ModelPart|[ModelPart]
 ---@return Adipose.WeightStage
 function adipose.weightStage:setParts(parts)
-    assert(type(parts) == 'ModelPart' or type(parts) == 'table', "Invalid parts")
+    -- Validate type of parts
+    assert(type(parts) == "ModelPart" or type(parts) == "table", "Invalid parts")
 
-    -- Validate contents of the table
-    if type(parts) == 'table' then
+    -- If parts is a table, validate the contents
+    if type(parts) == "table" then
         for i, p in ipairs(parts) do
-            assert(type(p) == 'ModelPart', "Invalid part "..tostring(i))
-        end 
+            assert(type(p) == "ModelPart", "Invalid part " .. tostring(i))
+        end
     end
 
     self.partsList = parts
