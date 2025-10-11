@@ -11,6 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Add documentation for `adipose.setStuffedOverride()`.
 - Removed unused variable `adipose.scaling`.
+- Add version information to the script itself.
 
 ## [2.0.0] - 2025-10-10
 

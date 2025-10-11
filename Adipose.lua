@@ -1,3 +1,10 @@
+--[[
+Adipose API - A weight gain library for Figura
+Authors: Nexi, Tyrus, psq95
+Version: 2.0.1
+Website: https://github.com/nexidict/Adipose-API/
+]]--
+
 ---@class Adipose
 local adipose = {}
 
