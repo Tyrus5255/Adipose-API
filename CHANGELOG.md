@@ -10,10 +10,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changes
 
 - Add documentation for `adipose.setStuffedOverride()`.
+- Removed unused variable `adipose.scaling`.
 
 ## [2.0.0] - 2025-10-10
 
 ### Changes
+
 - Fully refactored code to distill the library to its essentials. This library will now act as framework for the upcoming helper script which can be found at [Tyrus5255/Adipose-API](https://github.com/Tyrus5255/Adipose-API) (name soon to be changed).
 - Made `adipose.granularWeight` and `adipose.stuffed` public variables.
 - Made `adipose.setWeight` a ping, named `pings.AdiposeSetWeight`, and cleaned its code:
@@ -23,6 +25,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Updated `adipose.weightStage():newStage` metatable to now accept `scalingList`, helper table to store extra scaling information (specifically made to make scaling easier with the [Pehkui Figura](https://github.com/nexidict/Pehkui-Figura) script), and made `granularAnim` and `stuffedAnim` set `nil` to allow null check instead of strings checks.
 
 ### Added
+
 - Added `adipose.onStageChange` lambda function, allowing to assign behavior externally upon weight stage change.
 - Added death check, sending a ping on respawn.
 - Added `doTimer` function to standardize timer usage.
@@ -31,6 +34,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Added `setScaling` function to accomodate the addition of weight stage metatable.
 
 ### Removed
+
 - Specific Adipose Config removed: the model will now create its own config instead, and every Adipose value will now be saved in there.
 - Removed Pehkui support: this in place of the new script at [Pehkui Figura](https://github.com/nexidict/Pehkui-Figura), removing the need of hardcoding. Handling Pehkui scaling will be done by the handler script in the future.
 - Removed `checkFood` function: this was causing issues to the data passed for pings. This will be completely replaced by the helper script.
