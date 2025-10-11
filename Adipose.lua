@@ -93,28 +93,40 @@ local function setGranularity(index, granularity)
 	end
 end
 
+-- Stuffed override value
 local stuffedOverride = nil
-local function setStuffed(index, stuffed)
-    for i, stage in ipairs(adipose.weightStages) do 
-	    local animation = stage.stuffedAnim
 
-		if animation then
-			if index == i then
-				if stuffedOverride then stuffed = stuffedOverride end    
-			    animation:play()
-				animation:setSpeed(0)
-
-				local offset = animation:getLength() * stuffed
-				animation:setOffset(offset)	
-			else
-				animation:stop()
-			end
-		end
-	end
-end
-
+--- Set override stuffed value
+--- Used in setStuffed
+--- @param stuffed number | nil Fractional value of animation length or nil to disable override
 function adipose.setStuffedOverride(stuffed)
     stuffedOverride = stuffed
+end
+
+--- Set offset of stuffed animation
+--- May be overriden by setStuffedOverride()
+---@param index integer Index for weight stage table
+---@param stuffed number Fractional value of animation length
+local function setStuffed(index, stuffed)
+    if stuffedOverride ~= nil then
+        stuffed = stuffedOverride
+    end
+
+    for i, stage in ipairs(adipose.weightStages) do
+        local animation = stage.stuffedAnim
+
+        if animation then
+            if index == i then
+                animation:play()
+                animation:setSpeed(0)
+
+                local offset = animation:getLength() * stuffed
+                animation:setOffset(offset)
+            else
+                animation:stop()
+            end
+        end
+    end
 end
 
 -- EVENTS

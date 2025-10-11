@@ -79,6 +79,27 @@ Import the Adipose API for use in a script.
 local adipose = require('Adipose')
 ```
 
+#### `setStuffedOverride()`
+
+Overrides the stuffed value derived from saturation.
+
+**Parameters:**
+
+Name | Type | Description
+---  | ---  | ---
+stuffed | `Number\|nil` | Fractional value of animation length or nil to disable override
+
+**Example:**
+
+```lua
+-- Override stuffed empty
+adipose.setStuffedOverride(0)
+-- Override stuffed full
+adipose.setStuffedOverride(1)
+-- Disable override
+adipose.setStuffedOverride(nil)
+```
+
 ### Weight Management
 
 #### `setWeight()`
