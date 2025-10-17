@@ -1,56 +1,79 @@
+--[[
+Adipose API - A weight gain library for Figura
+Authors: Nexi, Tyrus, psq95
+Version: 2.0.1
+Website: https://github.com/nexidict/Adipose-API/
+]]--
+
 ---@class Adipose
 local adipose = {}
 
 -- CONSTANTS
+
 adipose.minWeight = 100
 adipose.maxWeight = 1000
 
 -- VARIABLES
+
 adipose.currentWeight = config:load("adipose.currentWeight") or adipose.minWeight
 adipose.currentWeightStage = config:load("adipose.currentWeightStage") or 1
 adipose.granularWeight = 0
 adipose.stuffed = 0
 
+-- Previous index used by setWeight()
 local oldindex = nil
+
+-- Whether the player is dead
 local isDead = false
+
+-- Maintain table of nearby players
 local knownReceivers = {}
+
+-- Timer used to check for nearby players
 local timerDuration = 40
 local timer = timerDuration
-
-adipose.scaling = true
 
 -- FUNCTIONS
 adipose.onStageChange = function(_, _, _, _) end
 
---- Sets function that will be called when weight stage changes
+--- Set function that will be called when weight stage changes
 --- @param callback fun(weight: number, index: number, granularity: number, stuffed: number)
 function adipose.setOnStageChange(callback)
     adipose.onStageChange = callback
 end
 
+--- Calculate weight from index
+---@param index integer Index for weight stage table
+---@return number weight Weight between minimum and maximum
 local function calculateWeightFromIndex(index)
-    if index == #adipose.weightStages+1 then return adipose.maxWeight end
+    if index == #adipose.weightStages + 1 then return adipose.maxWeight end
 
     local normalized = (index - 1) / (#adipose.weightStages)
-    local weight = adipose.minWeight + normalized * (adipose.maxWeight - adipose.minWeight) 
+    local weight = adipose.minWeight + normalized * (adipose.maxWeight - adipose.minWeight)
 
     return weight
 end
 
+--- Calculate progress from weight
+---@param weight number Weight
+---@return integer index Index for weight stage table
+---@return number granularity Fractional value of weight between stages
 local function calculateProgressFromWeight(weight)
-	local normalized = (weight - adipose.minWeight) / (adipose.maxWeight - adipose.minWeight)
+    local normalized = (weight - adipose.minWeight) / (adipose.maxWeight - adipose.minWeight)
     local exactWeightStage = normalized * #adipose.weightStages + 1
 
-	if exactWeightStage == #adipose.weightStages + 1 then
+    if exactWeightStage == #adipose.weightStages + 1 then
         return #adipose.weightStages, 1
-    end	
+    end
 
     local index = math.floor(exactWeightStage)
     local granularity = exactWeightStage - index
 
-	return index, granularity
+    return index, granularity
 end
 
+--- Update timer value
+---@return boolean tick Whether timer has ticked
 local function doTimer()
     if timer > 0 then
         timer = timer - 1
@@ -62,6 +85,9 @@ local function doTimer()
 end
 
 -- MODEL FUNCTIONS
+
+--- Set visibility of model parts
+---@param index integer Index for weight stage table
 local function setModelPartsVisibility(index)
     local visibleParts = {}
     for _, p in ipairs(adipose.weightStages[index].partsList) do
@@ -75,61 +101,86 @@ local function setModelPartsVisibility(index)
     end
 end
 
+--- Set offset of granularity animation
+---@param index integer Index for weight stage table
+---@param granularity number Fractional value of animation length
 local function setGranularity(index, granularity)
-    for i, stage in ipairs(adipose.weightStages) do 
-	    local animation = stage.granularAnim
+    for i, stage in ipairs(adipose.weightStages) do
+        local animation = stage.granularAnim
 
-		if animation then
-			if index == i then
-				animation:play()
-				animation:setSpeed(0)
+        if animation then
+            if index == i then
+                animation:play()
+                animation:setSpeed(0)
 
-				local offset = animation:getLength() * granularity
-				animation:setOffset(offset)
-			else
-				animation:stop()
-			end
-		end
-	end
+                local offset = animation:getLength() * granularity
+                animation:setOffset(offset)
+            else
+                animation:stop()
+            end
+        end
+    end
 end
 
+-- Stuffed override value
 local stuffedOverride = nil
-local function setStuffed(index, stuffed)
-    for i, stage in ipairs(adipose.weightStages) do 
-	    local animation = stage.stuffedAnim
 
-		if animation then
-			if index == i then
-				if stuffedOverride then stuffed = stuffedOverride end    
-			    animation:play()
-				animation:setSpeed(0)
-
-				local offset = animation:getLength() * stuffed
-				animation:setOffset(offset)	
-			else
-				animation:stop()
-			end
-		end
-	end
-end
-
+--- Set override stuffed value
+--- Used in setStuffed
+--- @param stuffed number | nil Fractional value of animation length or nil to disable override
 function adipose.setStuffedOverride(stuffed)
     stuffedOverride = stuffed
 end
 
+--- Set offset of stuffed animation
+--- May be overriden by setStuffedOverride()
+---@param index integer Index for weight stage table
+---@param stuffed number Fractional value of animation length
+local function setStuffed(index, stuffed)
+    if stuffedOverride ~= nil then
+        stuffed = stuffedOverride
+    end
+
+    for i, stage in ipairs(adipose.weightStages) do
+        local animation = stage.stuffedAnim
+
+        if animation then
+            if index == i then
+                animation:play()
+                animation:setSpeed(0)
+
+                local offset = animation:getLength() * stuffed
+                animation:setOffset(offset)
+            else
+                animation:stop()
+            end
+        end
+    end
+end
+
 -- EVENTS
+
+-- Set weight when player respawns
 function events.tick()
-    if player:getHealth() <= 0 then 
-        -- When the entity just died and the death screen appears
-        if not isDead then isDead = true end
+    -- Check health of player
+    if player:getHealth() <= 0 then
+        -- Player is dead
+        if not isDead then
+            -- Remember the player has died for when they respawn
+            isDead = true
+        end
     else
+        -- Player is alive
         if isDead then
+            -- Player was dead a moment ago and has now respawned
             pings.AdiposeSetWeight(adipose.currentWeight, true)
+            -- Remember player is now alive
             isDead = false
         end
     end
 end
 
+-- Set weight when players enter range
 function events.tick()
     if not doTimer() then return end
 
@@ -150,10 +201,11 @@ function events.tick()
     if doPing then pings.AdiposeSetWeight(adipose.currentWeight, true) end
 end
 
+-- Set weight after a delay when script is loaded
 if host:isHost() then
     local initTimer = 25
 
-    events.TICK:register(function ()
+    events.TICK:register(function()
         if initTimer > 0 then
             initTimer = initTimer - 1
             return
@@ -165,13 +217,17 @@ if host:isHost() then
 end
 
 -- WEIGHT MANAGEMENT
-function adipose.setWeight(amount, forceUpdate)    
-    if #adipose.weightStages == 0 then return end	
+
+--- Set weight
+---@param amount number Weight value
+---@param forceUpdate boolean? Ignore stage change condition (optional, default false)
+function adipose.setWeight(amount, forceUpdate)
+    if #adipose.weightStages == 0 then return end
 
     amount = math.clamp(amount, adipose.minWeight, adipose.maxWeight)
-		
+
     local index, granularity = calculateProgressFromWeight(amount)
-    local stuffed = player:isLoaded() and player:getSaturation()/20 or 0
+    local stuffed = player:isLoaded() and player:getSaturation() / 20 or 0
 
     adipose.currentWeight = amount
     adipose.currentWeightStage = index
@@ -183,84 +239,99 @@ function adipose.setWeight(amount, forceUpdate)
         adipose.onStageChange(amount, index, granularity, stuffed)
         setModelPartsVisibility(index)
     end
-	
-	setGranularity(index, granularity)
-	setStuffed(index, stuffed)
 
-    config:save("adipose.currentWeight", math.floor(adipose.currentWeight*10)/10)
+    setGranularity(index, granularity)
+    setStuffed(index, stuffed)
+
+    config:save("adipose.currentWeight", math.floor(adipose.currentWeight * 10) / 10)
     config:save("adipose.currentWeightStage", adipose.currentWeightStage)
 end
+
 pings.AdiposeSetWeight = adipose.setWeight
 
----@param stage number
+--- Set current weight stage
+---@param stage integer Index for weight stage table
 function adipose.setCurrentWeightStage(stage)
-    stage = math.clamp(math.floor(stage), 1, #adipose.weightStages+1)
+    stage = math.clamp(math.floor(stage), 1, #adipose.weightStages + 1)
     pings.AdiposeSetWeight(calculateWeightFromIndex(stage))
 end
 
+--- Adjust weight by value
+---@param amount number Weight value to gain (may be negative to lose weight)
 function adipose.adjustWeightByAmount(amount)
-    amount = math.clamp((adipose.currentWeight + math.floor(amount)), adipose.minWeight, adipose.maxWeight)
+    amount = math.clamp((adipose.currentWeight + math.floor(amount)),
+        adipose.minWeight, adipose.maxWeight)
     pings.AdiposeSetWeight(amount)
 end
 
+--- Adjust weight by index
+---@param amount integer Weight stage to gain (may be negative to lose weight)
 function adipose.adjustWeightByStage(amount)
-    amount = math.clamp((adipose.currentWeightStage + math.floor(amount)), 1, #adipose.weightStages+1)
+    amount = math.clamp((adipose.currentWeightStage + math.floor(amount)),
+        1, #adipose.weightStages + 1)
     pings.AdiposeSetWeight(calculateWeightFromIndex(amount))
 end
 
 -- WEIGHT STAGE
----@class Adipose.WeightStage[]
-adipose.weightStages = {}
+
+---@class Adipose.WeightStage
 adipose.weightStage = {}
 adipose.weightStage.__index = adipose.weightStage
 
----@return table
+---@class Adipose.WeightStage[]
+adipose.weightStages = {}
+
+--- Create new stage
+---@return Adipose.WeightStage
 function adipose.weightStage:newStage()
     local obj = setmetatable({
         partsList = {},
         granularAnim = nil,
-		stuffedAnim = nil,
-        scalingList = {}
+        stuffedAnim = nil,
+        scalingList = {},
     }, self)
 
     table.insert(adipose.weightStages, obj)
     return obj
 end
 
-
--- WEIGHT STAGE METHODS
+--- Set parts
 ---@param parts ModelPart|[ModelPart]
----@return self
+---@return Adipose.WeightStage
 function adipose.weightStage:setParts(parts)
-    assert(type(parts) == 'ModelPart' or type(parts) == 'table', "Invalid parts")
+    -- Validate type of parts
+    assert(type(parts) == "ModelPart" or type(parts) == "table", "Invalid parts")
 
-    -- Validate contents of the table
-    if type(parts) == 'table' then
+    -- If parts is a table, validate the contents
+    if type(parts) == "table" then
         for i, p in ipairs(parts) do
-            assert(type(p) == 'ModelPart', "Invalid part "..tostring(i))
-        end 
+            assert(type(p) == "ModelPart", "Invalid part " .. tostring(i))
+        end
     end
 
     self.partsList = parts
     return self
 end
 
+--- Set granular animation
 ---@param animation Animation
----@return self
+---@return Adipose.WeightStage
 function adipose.weightStage:setGranularAnimation(animation)
     self.granularAnim = animation
     return self
 end
 
+--- Set stuffed animation
 ---@param animation Animation
----@return self
+---@return Adipose.WeightStage
 function adipose.weightStage:setStuffedAnimation(animation)
     self.stuffedAnim = animation
     return self
 end
 
+--- Set scaling table
 ---@param scaling table<string, number>
----@return self
+---@return Adipose.WeightStage
 function adipose.weightStage:setScaling(scaling)
     self.scalingList = scaling
     return self

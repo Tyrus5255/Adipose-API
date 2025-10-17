@@ -17,14 +17,13 @@ Figura library that adds Weight Gain functionality with animation support.
     - [Adjust Weight By Amount](#adjustweightbyamount)
     - [Adjust Weight By Stage](#adjustweightbystage)
   - [Weight Stage](#weight-stage)
-    - [New Stage](#weightstagenewstage)
+    - [New Stage](#newstage)
     - [Set Parts](#setparts)
     - [Set Granular Animation](#setgranularanimation)
     - [Set Stuffed Animation](#setstuffedanimation)
     - [Set Scaling List](#setscaling)
 
 ## ⚙️ Features
-
 
 - **Staged Based Weight Gain**: designate Weight Stages with different modelparts or even whole models.
 - **Granular Weight Gain**: use an animation to smooth out the transition between stages.
@@ -77,6 +76,27 @@ Import the Adipose API for use in a script.
 
 ```lua
 local adipose = require('Adipose')
+```
+
+#### `setStuffedOverride()`
+
+Overrides the stuffed value derived from saturation.
+
+**Parameters:**
+
+Name | Type | Description
+---  | ---  | ---
+stuffed | `Number\|nil` | Fractional value of animation length or nil to disable override
+
+**Example:**
+
+```lua
+-- Override stuffed empty
+adipose.setStuffedOverride(0)
+-- Override stuffed full
+adipose.setStuffedOverride(1)
+-- Disable override
+adipose.setStuffedOverride(nil)
 ```
 
 ### Weight Management
@@ -172,7 +192,7 @@ adipose.adjustWeightByStage(1)
 
 ### Weight Stage
 
-#### `weightStage:newStage()`
+#### `newStage()`
 
 Creates a new stage.
 
