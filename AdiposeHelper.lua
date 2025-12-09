@@ -78,15 +78,16 @@ function events.tick()
 
 	foodQueue = foodQueue + checkFood()
 	
-	local roundedFoodQueue = 0
-	if foodQueue ~= 0 then roundedFoodQueue =((foodQueue/math.abs(foodQueue)) * math.floor(math.abs(foodQueue))) end
-		
+	local roundedFoodQueue = (foodQueue/math.abs(foodQueue)) * math.floor(math.abs(foodQueue))
+	
+	if foodQueue == 0 then roundedFoodQueue = 0 end
+	
+	--print(foodQueue)
+	--print(roundedFoodQueue)
+	
 	if roundedFoodQueue ~= 0 then	
 		foodQueue = foodQueue - math.floor(roundedFoodQueue)	
-		
-		weightDelta = adipose.currentWeight + math.floor(roundedFoodQueue)
-		
-		pings.AdiposeSetWeight(weightDelta)
+		pings.AdiposeSetWeight(adipose.currentWeight + math.floor(roundedFoodQueue))
 	end
 end
 
